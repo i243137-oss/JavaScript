@@ -132,6 +132,12 @@ body[data-theme="dark"] .top-nav {
   transition: background-color var(--transition), color var(--transition);
 }
 
+.top-nav__links a[aria-current="page"] {
+  background-color: var(--color-primary-transparent);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
 .top-nav__links a:hover,
 .top-nav__links a:focus-visible {
   background-color: var(--color-primary-transparent);
@@ -295,6 +301,17 @@ body[data-theme="dark"] .top-nav {
 .auth-form {
   display: grid;
   gap: 1rem;
+}
+
+.auth-helper {
+  margin: -0.5rem 0 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.auth-helper a {
+  color: var(--color-primary);
+  font-weight: 600;
 }
 
 .form-grid {

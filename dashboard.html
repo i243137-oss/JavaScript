@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Hub | Campus Lost &amp; Found</title>
+    <meta
+      name="description"
+      content="Report lost or found items, track statuses, and stay informed through the Campus Lost &amp; Found user dashboard."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="top-nav">
+      <div class="brand">
+        <span aria-hidden="true" class="brand__icon">🎒</span>
+        <div class="brand__text">
+          <strong>Campus Lost &amp; Found</strong>
+          <small>Find it fast. Return it faster.</small>
+        </div>
+      </div>
+      <nav class="top-nav__links" aria-label="Primary navigation">
+        <a href="index.html">Home</a>
+        <a href="login.html">Login</a>
+        <a href="register.html">Register</a>
+        <a href="dashboard.html" aria-current="page">User Hub</a>
+        <a href="admin.html">Admin Desk</a>
+        <a href="index.html#faq">FAQ</a>
+      </nav>
+      <div class="top-nav__controls">
+        <button id="themeToggle" class="ghost-btn" type="button">
+          <span class="icon" aria-hidden="true">🌙</span>
+          <span class="label">Dark</span>
+        </button>
+        <div id="activeUser" class="active-user" aria-live="polite">
+          <span class="active-user__name">Guest</span>
+          <button id="logoutBtn" type="button" class="ghost-btn ghost-btn--sm">
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <section id="alerts" class="alerts" aria-live="polite"></section>
+
+    <main>
+      <section
+        id="user-dashboard"
+        class="dashboard"
+        data-role="user"
+        aria-labelledby="userDashboardTitle"
+      >
+        <header class="dashboard__header">
+          <div>
+            <h1 id="userDashboardTitle">Lost &amp; Found Hub</h1>
+            <p>
+              Post reports, search across campus, and track every item you care
+              about.
+            </p>
+          </div>
+          <div class="status-legend" aria-label="Item status legend">
+            <span><span class="dot dot--lost"></span>Lost</span>
+            <span><span class="dot dot--found"></span>Found</span>
+            <span><span class="dot dot--returned"></span>Returned</span>
+          </div>
+        </header>
+
+        <div class="dashboard__grid">
+          <section class="card">
+            <header class="card__header">
+              <h2>Report an item</h2>
+              <nav class="sub-tabs" aria-label="Report type">
+                <button
+                  class="sub-tabs__btn"
+                  data-tab="report-lost"
+                  aria-selected="true"
+                >
+                  Lost item
+                </button>
+                <button
+                  class="sub-tabs__btn"
+                  data-tab="report-found"
+                  aria-selected="false"
+                >
+                  Found item
+                </button>
+              </nav>
+            </header>
+            <form id="report-lost" class="report-form" data-report-type="lost">
+              <div class="form-grid form-grid--two">
+                <label>
+                  Title
+                  <input
+                    type="text"
+                    name="title"
+                    placeholder="Blue Dell laptop"
+                    required
+                  />
+                </label>
+                <label>
+                  Category
+                  <select name="category" required>
+                    <option value="">Select...</option>
+                    <option>Electronics</option>
+                    <option>Books</option>
+                    <option>Clothing</option>
+                    <option>Accessories</option>
+                    <option>Documents</option>
+                    <option>Other</option>
+                  </select>
+                </label>
+                <label>
+                  Location
+                  <select name="location" required>
+                    <option value="">Select...</option>
+                    <option>Library</option>
+                    <option>Lecture Hall</option>
+                    <option>Lab</option>
+                    <option>Cafeteria</option>
+                    <option>Hostel</option>
+                    <option>Sports Complex</option>
+                    <option>Other</option>
+                  </select>
+                </label>
+                <label>
+                  Date lost
+                  <input type="date" name="date" required />
+                </label>
+              </div>
+              <label>
+                Description
+                <textarea
+                  name="description"
+                  rows="3"
+                  placeholder="Include identifying marks, color, etc."
+                  required
+                ></textarea>
+              </label>
+              <label class="file-upload">
+                <span>Photos</span>
+                <input
+                  type="file"
+                  name="photos"
+                  accept="image/*"
+                  multiple
+                  data-preview-target="lostPreview"
+                />
+              </label>
+              <div class="image-preview" id="lostPreview" aria-live="polite"></div>
+              <div class="form-actions">
+                <button type="submit" class="primary-btn">
+                  Submit lost report
+                </button>
+                <button type="reset" class="ghost-btn">Clear</button>
+              </div>
+            </form>
+            <form
+              id="report-found"
+              class="report-form is-hidden"
+              data-report-type="found"
+            >
+              <div class="form-grid form-grid--two">
+                <label>
+                  Title
+                  <input
+                    type="text"
+                    name="title"
+                    placeholder="Keychain with ID card"
+                    required
+                  />
+                </label>
+                <label>
+                  Category
+                  <select name="category" required>
+                    <option value="">Select...</option>
+                    <option>Electronics</option>
+                    <option>Books</option>
+                    <option>Clothing</option>
+                    <option>Accessories</option>
+                    <option>Documents</option>
+                    <option>Other</option>
+                  </select>
+                </label>
+                <label>
+                  Location found
+                  <select name="location" required>
+                    <option value="">Select...</option>
+                    <option>Library</option>
+                    <option>Lecture Hall</option>
+                    <option>Lab</option>
+                    <option>Cafeteria</option>
+                    <option>Hostel</option>
+                    <option>Sports Complex</option>
+                    <option>Other</option>
+                  </select>
+                </label>
+                <label>
+                  Date found
+                  <input type="date" name="date" required />
+                </label>
+              </div>
+              <label>
+                Description
+                <textarea
+                  name="description"
+                  rows="3"
+                  placeholder="Include clues about where and how it was found."
+                  required
+                ></textarea>
+              </label>
+              <label class="file-upload">
+                <span>Photos</span>
+                <input
+                  type="file"
+                  name="photos"
+                  accept="image/*"
+                  multiple
+                  data-preview-target="foundPreview"
+                />
+              </label>
+              <div class="image-preview" id="foundPreview" aria-live="polite"></div>
+              <div class="form-actions">
+                <button type="submit" class="primary-btn">
+                  Submit found report
+                </button>
+                <button type="reset" class="ghost-btn">Clear</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="card card--filters">
+            <header class="card__header">
+              <h2>Search &amp; filters</h2>
+            </header>
+            <div class="filters-grid">
+              <label>
+                Keyword
+                <input
+                  type="search"
+                  id="searchInput"
+                  placeholder="Search by title, description, owner..."
+                />
+              </label>
+              <label>
+                Category
+                <select id="categoryFilter">
+                  <option value="all">All categories</option>
+                  <option>Electronics</option>
+                  <option>Books</option>
+                  <option>Clothing</option>
+                  <option>Accessories</option>
+                  <option>Documents</option>
+                  <option>Other</option>
+                </select>
+              </label>
+              <label>
+                Location
+                <select id="locationFilter">
+                  <option value="all">All locations</option>
+                  <option>Library</option>
+                  <option>Lecture Hall</option>
+                  <option>Lab</option>
+                  <option>Cafeteria</option>
+                  <option>Hostel</option>
+                  <option>Sports Complex</option>
+                  <option>Other</option>
+                </select>
+              </label>
+              <label>
+                Status
+                <select id="statusFilter">
+                  <option value="all">Any status</option>
+                  <option value="lost">Lost</option>
+                  <option value="found">Found</option>
+                  <option value="returned">Returned</option>
+                </select>
+              </label>
+              <label>
+                Sort by
+                <select id="sortFilter">
+                  <option value="newest">Newest first</option>
+                  <option value="oldest">Oldest first</option>
+                  <option value="category">Category</option>
+                </select>
+              </label>
+              <button id="clearFilters" type="button" class="ghost-btn">
+                Clear filters
+              </button>
+            </div>
+            <div class="quick-stats" id="quickStats">
+              <div class="quick-stats__item">
+                <span class="quick-stats__label">Lost</span>
+                <strong id="statLost">0</strong>
+              </div>
+              <div class="quick-stats__item">
+                <span class="quick-stats__label">Found</span>
+                <strong id="statFound">0</strong>
+              </div>
+              <div class="quick-stats__item">
+                <span class="quick-stats__label">Returned</span>
+                <strong id="statReturned">0</strong>
+              </div>
+            </div>
+          </section>
+
+          <section class="card card--notifications">
+            <header class="card__header">
+              <h2>Match alerts</h2>
+              <p>Stay informed when someone reports a potential match.</p>
+            </header>
+            <ul id="notificationList" class="notification-list"></ul>
+            <button id="clearNotifications" type="button" class="ghost-btn">
+              Clear all
+            </button>
+          </section>
+        </div>
+
+        <section class="card card--wide">
+          <header class="card__header">
+            <h2>Results</h2>
+            <p>Review open cases and reach out to reunite items with owners.</p>
+          </header>
+          <div
+            id="resultsGrid"
+            class="results-grid"
+            aria-live="polite"
+            aria-busy="false"
+          ></div>
+        </section>
+
+        <section class="card card--wide">
+          <header class="card__header">
+            <h2>Your history</h2>
+            <p>Track every item you have reported and see status changes.</p>
+          </header>
+          <div id="historyList" class="history-list"></div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>
+        Built for safer, smarter campuses. Need help?
+        <a href="mailto:lostfound@university.edu">Contact support</a>
+      </p>
+    </footer>
+
+    <template id="itemCardTemplate">
+      <article class="item-card" data-status="">
+        <div class="item-card__header">
+          <h3 class="item-card__title"></h3>
+          <span class="item-card__status"></span>
+        </div>
+        <p class="item-card__meta"></p>
+        <p class="item-card__description"></p>
+        <div class="item-card__tags"></div>
+        <div class="item-card__images"></div>
+        <div class="item-card__actions">
+          <button type="button" class="ghost-btn item-card__claim">
+            Mark as returned
+          </button>
+        </div>
+      </article>
+    </template>
+
+    <template id="historyItemTemplate">
+      <article class="history-card">
+        <header>
+          <h3 class="history-card__title"></h3>
+          <span class="history-card__status"></span>
+        </header>
+        <p class="history-card__meta"></p>
+        <div class="history-card__timeline"></div>
+      </article>
+    </template>
+
+    <template id="moderationItemTemplate">
+      <li class="moderation-item">
+        <header class="moderation-item__header">
+          <div>
+            <h3 class="moderation-item__title"></h3>
+            <p class="moderation-item__meta"></p>
+          </div>
+          <span class="badge moderation-item__type"></span>
+        </header>
+        <p class="moderation-item__description"></p>
+        <div class="moderation-item__actions">
+          <button type="button" class="ghost-btn moderation-item__reject">
+            Reject
+          </button>
+          <button type="button" class="primary-btn moderation-item__approve">
+            Approve
+          </button>
+        </div>
+      </li>
+    </template>
+
+    <template id="userListItemTemplate">
+      <li class="user-item">
+        <div>
+          <strong class="user-item__name"></strong>
+          <p class="user-item__meta"></p>
+        </div>
+        <div class="user-item__actions">
+          <button type="button" class="ghost-btn user-item__suspend">
+            Suspend
+          </button>
+          <button type="button" class="ghost-btn user-item__reinstate">
+            Reinstate
+          </button>
+        </div>
+      </li>
+    </template>
+
+    <script src="script.js" type="module"></script>
+  </body>
+</html>

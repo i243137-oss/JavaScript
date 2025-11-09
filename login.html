@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | Campus Lost &amp; Found</title>
+    <meta
+      name="description"
+      content="Sign in to the Campus Lost &amp; Found platform with your verified university email."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="top-nav">
+      <div class="brand">
+        <span aria-hidden="true" class="brand__icon">🎒</span>
+        <div class="brand__text">
+          <strong>Campus Lost &amp; Found</strong>
+          <small>Find it fast. Return it faster.</small>
+        </div>
+      </div>
+      <nav class="top-nav__links" aria-label="Primary navigation">
+        <a href="index.html">Home</a>
+        <a href="login.html" aria-current="page">Login</a>
+        <a href="register.html">Register</a>
+        <a href="dashboard.html">User Hub</a>
+        <a href="admin.html">Admin Desk</a>
+        <a href="index.html#faq">FAQ</a>
+      </nav>
+      <div class="top-nav__controls">
+        <button id="themeToggle" class="ghost-btn" type="button">
+          <span class="icon" aria-hidden="true">🌙</span>
+          <span class="label">Dark</span>
+        </button>
+        <div id="activeUser" class="active-user" aria-live="polite">
+          <span class="active-user__name">Guest</span>
+          <button id="logoutBtn" type="button" class="ghost-btn ghost-btn--sm">
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <section id="alerts" class="alerts" aria-live="polite"></section>
+
+    <main>
+      <section class="panel-grid">
+        <article class="card">
+          <header class="card__header">
+            <h1>Welcome back</h1>
+            <p>Use your verified university email to keep the community secure.</p>
+          </header>
+          <form id="authLogin" class="auth-form">
+            <label>
+              University email
+              <input
+                type="email"
+                name="loginEmail"
+                placeholder="name@university.edu"
+                required
+              />
+            </label>
+            <label>
+              Password
+              <input
+                type="password"
+                name="loginPassword"
+                placeholder="Enter password"
+                required
+              />
+            </label>
+            <button type="submit" class="primary-btn">Login</button>
+          </form>
+          <p class="auth-helper">
+            Need an account?
+            <a href="register.html">Register here</a>.
+          </p>
+        </article>
+        <aside class="card card--accent">
+          <h2>Why verified email?</h2>
+          <ul>
+            <li>Keep item exchanges restricted to the campus community.</li>
+            <li>Reduce spam and ensure accountability.</li>
+            <li>Enable automated updates tied to your institution identity.</li>
+          </ul>
+        </aside>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>
+        Built for safer, smarter campuses. Need help?
+        <a href="mailto:lostfound@university.edu">Contact support</a>
+      </p>
+    </footer>
+
+    <script src="script.js" type="module"></script>
+  </body>
+</html>
