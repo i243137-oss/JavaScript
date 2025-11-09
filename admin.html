@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Desk | Campus Lost &amp; Found</title>
+    <meta
+      name="description"
+      content="Moderate reports, publish announcements, and analyze Lost &amp; Found activity across campus."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="top-nav">
+      <div class="brand">
+        <span aria-hidden="true" class="brand__icon">🎒</span>
+        <div class="brand__text">
+          <strong>Campus Lost &amp; Found</strong>
+          <small>Find it fast. Return it faster.</small>
+        </div>
+      </div>
+      <nav class="top-nav__links" aria-label="Primary navigation">
+        <a href="index.html">Home</a>
+        <a href="login.html">Login</a>
+        <a href="register.html">Register</a>
+        <a href="dashboard.html">User Hub</a>
+        <a href="admin.html" aria-current="page">Admin Desk</a>
+        <a href="index.html#faq">FAQ</a>
+      </nav>
+      <div class="top-nav__controls">
+        <button id="themeToggle" class="ghost-btn" type="button">
+          <span class="icon" aria-hidden="true">🌙</span>
+          <span class="label">Dark</span>
+        </button>
+        <div id="activeUser" class="active-user" aria-live="polite">
+          <span class="active-user__name">Guest</span>
+          <button id="logoutBtn" type="button" class="ghost-btn ghost-btn--sm">
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <section id="alerts" class="alerts" aria-live="polite"></section>
+
+    <main>
+      <section
+        id="admin-dashboard"
+        class="dashboard dashboard--secondary"
+        data-role="admin"
+        aria-labelledby="adminDashboardTitle"
+      >
+        <header class="dashboard__header">
+          <div>
+            <h1 id="adminDashboardTitle">Admin Control Desk</h1>
+            <p>
+              Moderate posts, analyze trends, and keep the system running
+              smoothly.
+            </p>
+          </div>
+          <div class="dashboard__actions">
+            <button id="downloadAuditLog" type="button" class="ghost-btn">
+              Download audit log
+            </button>
+            <button id="downloadUserReport" type="button" class="ghost-btn">
+              Download user history
+            </button>
+          </div>
+        </header>
+
+        <div class="dashboard__grid dashboard__grid--admin">
+          <section class="card">
+            <header class="card__header">
+              <h2>Moderation queue</h2>
+              <p>Approve or reject new submissions before they go live.</p>
+            </header>
+            <ul id="moderationList" class="moderation-list"></ul>
+          </section>
+
+          <section class="card card--analytics">
+            <header class="card__header">
+              <h2>Campus insights</h2>
+            </header>
+            <div class="analytics-grid">
+              <div class="analytic-card">
+                <span>Total lost items (30d)</span>
+                <strong id="analyticsLost">0</strong>
+              </div>
+              <div class="analytic-card">
+                <span>Recovery ratio</span>
+                <strong id="analyticsRecovery">0%</strong>
+              </div>
+              <div class="analytic-card">
+                <span>Avg. resolution time</span>
+                <strong id="analyticsResolution">0 days</strong>
+              </div>
+              <div class="analytic-card analytic-card--highlight">
+                <span>Frequent loss alert</span>
+                <strong id="analyticsFrequent">ID Cards</strong>
+              </div>
+            </div>
+            <canvas
+              id="categoryChart"
+              width="320"
+              height="180"
+              role="img"
+              aria-label="Bar chart of lost and found items by category"
+            ></canvas>
+          </section>
+
+          <section class="card">
+            <header class="card__header">
+              <h2>Announcements</h2>
+              <p>Keep the campus up to date with policies and reminders.</p>
+            </header>
+            <form id="announcementForm" class="report-form">
+              <label>
+                Title
+                <input
+                  type="text"
+                  name="announcementTitle"
+                  placeholder="Unclaimed items policy"
+                  required
+                />
+              </label>
+              <label>
+                Message
+                <textarea
+                  name="announcementBody"
+                  rows="3"
+                  placeholder="Unclaimed items will be stored for 30 days..."
+                  required
+                ></textarea>
+              </label>
+              <button type="submit" class="primary-btn">Post announcement</button>
+            </form>
+            <ul id="announcementList" class="announcement-list"></ul>
+          </section>
+
+          <section class="card">
+            <header class="card__header">
+              <h2>User management</h2>
+            </header>
+            <ul id="userList" class="user-list"></ul>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>
+        Built for safer, smarter campuses. Need help?
+        <a href="mailto:lostfound@university.edu">Contact support</a>
+      </p>
+    </footer>
+
+    <template id="moderationItemTemplate">
+      <li class="moderation-item">
+        <header class="moderation-item__header">
+          <div>
+            <h3 class="moderation-item__title"></h3>
+            <p class="moderation-item__meta"></p>
+          </div>
+          <span class="badge moderation-item__type"></span>
+        </header>
+        <p class="moderation-item__description"></p>
+        <div class="moderation-item__actions">
+          <button type="button" class="ghost-btn moderation-item__reject">
+            Reject
+          </button>
+          <button type="button" class="primary-btn moderation-item__approve">
+            Approve
+          </button>
+        </div>
+      </li>
+    </template>
+
+    <template id="userListItemTemplate">
+      <li class="user-item">
+        <div>
+          <strong class="user-item__name"></strong>
+          <p class="user-item__meta"></p>
+        </div>
+        <div class="user-item__actions">
+          <button type="button" class="ghost-btn user-item__suspend">
+            Suspend
+          </button>
+          <button type="button" class="ghost-btn user-item__reinstate">
+            Reinstate
+          </button>
+        </div>
+      </li>
+    </template>
+
+    <script src="script.js" type="module"></script>
+  </body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register | Campus Lost &amp; Found</title>
+    <meta
+      name="description"
+      content="Create a Campus Lost &amp; Found account to report and track items."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="top-nav">
+      <div class="brand">
+        <span aria-hidden="true" class="brand__icon">🎒</span>
+        <div class="brand__text">
+          <strong>Campus Lost &amp; Found</strong>
+          <small>Find it fast. Return it faster.</small>
+        </div>
+      </div>
+      <nav class="top-nav__links" aria-label="Primary navigation">
+        <a href="index.html">Home</a>
+        <a href="login.html">Login</a>
+        <a href="register.html" aria-current="page">Register</a>
+        <a href="dashboard.html">User Hub</a>
+        <a href="admin.html">Admin Desk</a>
+        <a href="index.html#faq">FAQ</a>
+      </nav>
+      <div class="top-nav__controls">
+        <button id="themeToggle" class="ghost-btn" type="button">
+          <span class="icon" aria-hidden="true">🌙</span>
+          <span class="label">Dark</span>
+        </button>
+        <div id="activeUser" class="active-user" aria-live="polite">
+          <span class="active-user__name">Guest</span>
+          <button id="logoutBtn" type="button" class="ghost-btn ghost-btn--sm">
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <section id="alerts" class="alerts" aria-live="polite"></section>
+
+    <main>
+      <section class="panel-grid">
+        <article class="card">
+          <header class="card__header">
+            <h1>Create your account</h1>
+            <p>Join the campus network to submit and track item reports.</p>
+          </header>
+          <form id="authRegister" class="auth-form">
+            <div class="form-grid">
+              <label>
+                Full name
+                <input
+                  type="text"
+                  name="registerName"
+                  placeholder="Jordan Ayo"
+                  required
+                />
+              </label>
+              <label>
+                University email
+                <input
+                  type="email"
+                  name="registerEmail"
+                  placeholder="name@university.edu"
+                  required
+                />
+              </label>
+              <label>
+                Department
+                <input
+                  type="text"
+                  name="registerDepartment"
+                  placeholder="e.g., Computer Science"
+                  required
+                />
+              </label>
+              <label>
+                Phone number
+                <input
+                  type="tel"
+                  name="registerPhone"
+                  placeholder="e.g., +1 555 123 4567"
+                  required
+                />
+              </label>
+            </div>
+            <label>
+              Password
+              <input
+                type="password"
+                name="registerPassword"
+                placeholder="Create a secure password"
+                required
+              />
+            </label>
+            <label>
+              Confirm password
+              <input
+                type="password"
+                name="registerConfirm"
+                placeholder="Re-enter password"
+                required
+              />
+            </label>
+            <button type="submit" class="primary-btn">Create account</button>
+          </form>
+          <p class="auth-helper">
+            Already registered?
+            <a href="login.html">Login instead</a>.
+          </p>
+        </article>
+        <aside class="card card--accent">
+          <h2>Registration tips</h2>
+          <ul>
+            <li>Use your official campus email address.</li>
+            <li>Provide contact info so matches can reach you quickly.</li>
+            <li>Strong passwords keep your item history protected.</li>
+          </ul>
+        </aside>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>
+        Built for safer, smarter campuses. Need help?
+        <a href="mailto:lostfound@university.edu">Contact support</a>
+      </p>
+    </footer>
+
+    <script src="script.js" type="module"></script>
+  </body>
+</html>

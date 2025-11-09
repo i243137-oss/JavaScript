@@ -225,7 +225,17 @@ function saveState() {
   localStorage.setItem("lf-activeUser", JSON.stringify(state.activeUser));
 }
 
+function ensureAlertsContainer() {
+  if (dom.alerts) return;
+  const container = document.createElement("section");
+  container.id = "alerts";
+  container.className = "alerts";
+  document.body.insertBefore(container, document.body.firstChild);
+  dom.alerts = container;
+}
+
 function createAlert(message, type = "success", dismissAfter = 4000) {
+  ensureAlertsContainer();
   const alert = document.createElement("div");
   alert.className = `alert alert--${type}`;
   alert.innerHTML = `
@@ -234,7 +244,7 @@ function createAlert(message, type = "success", dismissAfter = 4000) {
   `;
   const dismissBtn = alert.querySelector("button");
   dismissBtn.addEventListener("click", () => alert.remove());
-  dom.alerts.appendChild(alert);
+  dom.alerts?.appendChild(alert);
   if (dismissAfter) {
     setTimeout(() => alert.remove(), dismissAfter);
   }
@@ -276,17 +286,27 @@ function isAdmin(user = state.activeUser) {
 ------------------------------------------------------------- */
 function setTheme(theme) {
   state.theme = theme;
-  document.body.dataset.theme = theme;
-  dom.themeToggle.querySelector(".icon").textContent =
-    theme === "dark" ? "☀️" : "🌙";
-  dom.themeToggle.querySelector(".label").textContent =
-    theme === "dark" ? "Light" : "Dark";
+  if (document.body) {
+    document.body.dataset.theme = theme;
+  }
+  if (dom.themeToggle) {
+    const icon = dom.themeToggle.querySelector(".icon");
+    const label = dom.themeToggle.querySelector(".label");
+    if (icon) {
+      icon.textContent = theme === "dark" ? "☀️" : "🌙";
+    }
+    if (label) {
+      label.textContent = theme === "dark" ? "Light" : "Dark";
+    }
+  }
   localStorage.setItem("lf-theme", theme);
 }
 
-dom.themeToggle.addEventListener("click", () => {
-  setTheme(state.theme === "light" ? "dark" : "light");
-});
+if (dom.themeToggle) {
+  dom.themeToggle.addEventListener("click", () => {
+    setTheme(state.theme === "light" ? "dark" : "light");
+  });
+}
 
 setTheme(state.theme);
 
@@ -310,8 +330,16 @@ dom.authTabs.forEach((tab) => {
 
 document.querySelectorAll("[data-open-auth]").forEach((btn) => {
   btn.addEventListener("click", () => {
-    switchAuthTab(btn.dataset.openAuth);
-    window.scrollTo({ top: dom.authForms.login.offsetTop - 100, behavior: "smooth" });
+    const targetTab = btn.dataset.openAuth;
+    if (!targetTab) return;
+    switchAuthTab(targetTab);
+    const targetForm = dom.authForms?.[targetTab];
+    if (targetForm) {
+      window.scrollTo({
+        top: targetForm.offsetTop - 100,
+        behavior: "smooth",
+      });
+    }
   });
 });
 
@@ -319,115 +347,132 @@ function validateUniversityEmail(email) {
   return /^[^@\s]+@[^@\s]+\.(edu|ac\.[a-z]+)$/i.test(email);
 }
 
-dom.authForms.login.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const formData = new FormData(event.currentTarget);
-  const email = formData.get("loginEmail").toLowerCase();
-  const password = formData.get("loginPassword");
+if (dom.authForms.login) {
+  dom.authForms.login.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const email = formData.get("loginEmail").toLowerCase();
+    const password = formData.get("loginPassword");
 
-  if (!validateUniversityEmail(email)) {
-    createAlert("Use your verified university email address to sign in.", "warning");
-    return;
-  }
+    if (!validateUniversityEmail(email)) {
+      createAlert("Use your verified university email address to sign in.", "warning");
+      return;
+    }
 
-  const user = state.users.find((u) => u.email.toLowerCase() === email);
-  if (!user) {
-    createAlert("No account found. Please register first.", "danger");
-    return;
-  }
+    const user = state.users.find((u) => u.email.toLowerCase() === email);
+    if (!user) {
+      createAlert("No account found. Please register first.", "danger");
+      return;
+    }
 
-  if (user.status !== "active") {
-    createAlert("Your account is suspended. Contact support.", "danger");
-    return;
-  }
+    if (user.status !== "active") {
+      createAlert("Your account is suspended. Contact support.", "danger");
+      return;
+    }
 
-  state.activeUser = user;
-  recordAudit({ actor: user.email, action: "login" });
-  saveState();
-  renderApp();
-  createAlert(`Welcome back, ${user.name.split(" ")[0]}!`);
-  event.currentTarget.reset();
-});
+    state.activeUser = user;
+    recordAudit({ actor: user.email, action: "login" });
+    saveState();
+    renderApp();
+    createAlert(`Welcome back, ${user.name.split(" ")[0]}!`);
+    event.currentTarget.reset();
+  });
+}
 
-dom.authForms.register.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const formData = new FormData(event.currentTarget);
+if (dom.authForms.register) {
+  dom.authForms.register.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
 
-  const data = {
-    name: formData.get("registerName").trim(),
-    email: formData.get("registerEmail").toLowerCase(),
-    department: formData.get("registerDepartment").trim(),
-    phone: formData.get("registerPhone").trim(),
-    password: formData.get("registerPassword"),
-    confirm: formData.get("registerConfirm"),
-  };
+    const data = {
+      name: formData.get("registerName").trim(),
+      email: formData.get("registerEmail").toLowerCase(),
+      department: formData.get("registerDepartment").trim(),
+      phone: formData.get("registerPhone").trim(),
+      password: formData.get("registerPassword"),
+      confirm: formData.get("registerConfirm"),
+    };
 
-  if (!validateUniversityEmail(data.email)) {
-    createAlert(
-      "Please use a valid university email (ending with .edu or academic domain).",
-      "warning"
-    );
-    return;
-  }
+    if (!validateUniversityEmail(data.email)) {
+      createAlert(
+        "Please use a valid university email (ending with .edu or academic domain).",
+        "warning"
+      );
+      return;
+    }
 
-  if (data.password.length < 8) {
-    createAlert("Password must be at least 8 characters long.", "warning");
-    return;
-  }
+    if (data.password.length < 8) {
+      createAlert("Password must be at least 8 characters long.", "warning");
+      return;
+    }
 
-  if (data.password !== data.confirm) {
-    createAlert("Passwords do not match. Try again.", "danger");
-    return;
-  }
+    if (data.password !== data.confirm) {
+      createAlert("Passwords do not match. Try again.", "danger");
+      return;
+    }
 
-  if (state.users.some((u) => u.email.toLowerCase() === data.email)) {
-    createAlert("This email is already registered. Try logging in.", "warning");
-    return;
-  }
+    if (state.users.some((u) => u.email.toLowerCase() === data.email)) {
+      createAlert("This email is already registered. Try logging in.", "warning");
+      return;
+    }
 
-  const newUser = {
-    id: crypto.randomUUID(),
-    name: data.name,
-    email: data.email,
-    department: data.department,
-    phone: data.phone,
-    role: "student",
-    status: "active",
-  };
+    const newUser = {
+      id: crypto.randomUUID(),
+      name: data.name,
+      email: data.email,
+      department: data.department,
+      phone: data.phone,
+      role: "student",
+      status: "active",
+    };
 
-  state.users.push(newUser);
-  state.activeUser = newUser;
-  createAlert("Account created successfully. Welcome aboard!");
-  recordAudit({ actor: newUser.email, action: "register" });
-  saveState();
-  renderApp();
-  event.currentTarget.reset();
-  switchAuthTab("login");
-});
+    state.users.push(newUser);
+    state.activeUser = newUser;
+    createAlert("Account created successfully. Welcome aboard!");
+    recordAudit({ actor: newUser.email, action: "register" });
+    saveState();
+    renderApp();
+    event.currentTarget.reset();
+    switchAuthTab("login");
+  });
+}
 
-dom.logoutBtn.addEventListener("click", () => {
-  if (!state.activeUser) return;
-  recordAudit({ actor: state.activeUser.email, action: "logout" });
-  state.activeUser = null;
-  saveState();
-  renderApp();
-  createAlert("You have been logged out.", "success");
-});
+if (dom.logoutBtn) {
+  dom.logoutBtn.addEventListener("click", () => {
+    if (!state.activeUser) return;
+    recordAudit({ actor: state.activeUser.email, action: "logout" });
+    state.activeUser = null;
+    saveState();
+    renderApp();
+    createAlert("You have been logged out.", "success");
+  });
+}
 
 /* -------------------------------------------------------------
    Role Switching
 ------------------------------------------------------------- */
-dom.roleSwitcher.addEventListener("change", () => {
-  const isAdminView = dom.roleSwitcher.value === "admin";
-  dom.dashboards.admin.classList.toggle("is-hidden", !isAdminView);
-  dom.dashboards.user.classList.toggle("is-hidden", isAdminView);
-});
+if (dom.roleSwitcher) {
+  dom.roleSwitcher.addEventListener("change", () => {
+    const isAdminView = dom.roleSwitcher.value === "admin";
+    if (dom.dashboards.admin) {
+      dom.dashboards.admin.classList.toggle("is-hidden", !isAdminView);
+    }
+    if (dom.dashboards.user) {
+      dom.dashboards.user.classList.toggle("is-hidden", isAdminView);
+    }
+  });
+}
 
 function syncRoleSwitcher() {
+  if (!dom.roleSwitcher) return;
   const view = state.activeUser?.role === "admin" ? "admin" : "student";
   dom.roleSwitcher.value = view;
-  dom.dashboards.admin.classList.toggle("is-hidden", view !== "admin");
-  dom.dashboards.user.classList.toggle("is-hidden", view === "admin");
+  if (dom.dashboards.admin) {
+    dom.dashboards.admin.classList.toggle("is-hidden", view !== "admin");
+  }
+  if (dom.dashboards.user) {
+    dom.dashboards.user.classList.toggle("is-hidden", view === "admin");
+  }
 }
 
 /* -------------------------------------------------------------
@@ -559,6 +604,7 @@ function applyFilters(items) {
 }
 
 function updateStats(items) {
+  if (!dom.stats.lost || !dom.stats.found || !dom.stats.returned) return;
   const summary = items.reduce(
     (acc, item) => {
       acc[item.status] = (acc[item.status] || 0) + 1;
@@ -572,6 +618,7 @@ function updateStats(items) {
 }
 
 function renderItems() {
+  if (!dom.resultsGrid) return;
   dom.resultsGrid.innerHTML = "";
   const approvedItems = state.items.filter((item) => item.status !== "archived");
   updateStats(approvedItems);
@@ -587,6 +634,8 @@ function renderItems() {
     dom.resultsGrid.appendChild(emptyState);
     return;
   }
+
+  if (!TEMPLATES.itemCard) return;
 
   visibleItems.forEach((item) => {
     const fragment = TEMPLATES.itemCard.content.cloneNode(true);
@@ -661,6 +710,7 @@ function advanceStatus(itemId) {
    History
 ------------------------------------------------------------- */
 function renderHistory() {
+  if (!dom.historyList) return;
   dom.historyList.innerHTML = "";
   if (!state.activeUser) {
     const message = document.createElement("div");
@@ -684,6 +734,8 @@ function renderHistory() {
     dom.historyList.appendChild(message);
     return;
   }
+
+  if (!TEMPLATES.historyCard) return;
 
   userItems.forEach((item) => {
     const fragment = TEMPLATES.historyCard.content.cloneNode(true);
@@ -714,6 +766,7 @@ function renderHistory() {
    Notifications
 ------------------------------------------------------------- */
 function renderNotifications() {
+  if (!dom.notificationList) return;
   dom.notificationList.innerHTML = "";
   if (state.notifications.length === 0) {
     const empty = document.createElement("li");
@@ -738,10 +791,12 @@ function renderNotifications() {
   });
 }
 
-dom.clearNotifications.addEventListener("click", () => {
-  state.notifications = [];
-  renderNotifications();
-});
+if (dom.clearNotifications) {
+  dom.clearNotifications.addEventListener("click", () => {
+    state.notifications = [];
+    renderNotifications();
+  });
+}
 
 function triggerMatchNotifications(entry) {
   const matches = state.items.filter(
@@ -772,46 +827,58 @@ function triggerMatchNotifications(entry) {
    Filters
 ------------------------------------------------------------- */
 function bindFilters() {
-  dom.searchInput.addEventListener("input", (event) => {
-    state.filters.search = event.target.value.trim();
-    renderItems();
-  });
+  if (dom.searchInput) {
+    dom.searchInput.addEventListener("input", (event) => {
+      state.filters.search = event.target.value.trim();
+      renderItems();
+    });
+  }
 
-  dom.categoryFilter.addEventListener("change", (event) => {
-    state.filters.category = event.target.value;
-    renderItems();
-  });
+  if (dom.categoryFilter) {
+    dom.categoryFilter.addEventListener("change", (event) => {
+      state.filters.category = event.target.value;
+      renderItems();
+    });
+  }
 
-  dom.locationFilter.addEventListener("change", (event) => {
-    state.filters.location = event.target.value;
-    renderItems();
-  });
+  if (dom.locationFilter) {
+    dom.locationFilter.addEventListener("change", (event) => {
+      state.filters.location = event.target.value;
+      renderItems();
+    });
+  }
 
-  dom.statusFilter.addEventListener("change", (event) => {
-    state.filters.status = event.target.value;
-    renderItems();
-  });
+  if (dom.statusFilter) {
+    dom.statusFilter.addEventListener("change", (event) => {
+      state.filters.status = event.target.value;
+      renderItems();
+    });
+  }
 
-  dom.sortFilter.addEventListener("change", (event) => {
-    state.filters.sort = event.target.value;
-    renderItems();
-  });
+  if (dom.sortFilter) {
+    dom.sortFilter.addEventListener("change", (event) => {
+      state.filters.sort = event.target.value;
+      renderItems();
+    });
+  }
 
-  dom.clearFilters.addEventListener("click", () => {
-    state.filters = {
-      search: "",
-      category: "all",
-      location: "all",
-      status: "all",
-      sort: "newest",
-    };
-    dom.searchInput.value = "";
-    dom.categoryFilter.value = "all";
-    dom.locationFilter.value = "all";
-    dom.statusFilter.value = "all";
-    dom.sortFilter.value = "newest";
-    renderItems();
-  });
+  if (dom.clearFilters) {
+    dom.clearFilters.addEventListener("click", () => {
+      state.filters = {
+        search: "",
+        category: "all",
+        location: "all",
+        status: "all",
+        sort: "newest",
+      };
+      if (dom.searchInput) dom.searchInput.value = "";
+      if (dom.categoryFilter) dom.categoryFilter.value = "all";
+      if (dom.locationFilter) dom.locationFilter.value = "all";
+      if (dom.statusFilter) dom.statusFilter.value = "all";
+      if (dom.sortFilter) dom.sortFilter.value = "newest";
+      renderItems();
+    });
+  }
 }
 
 bindFilters();
@@ -820,6 +887,7 @@ bindFilters();
    Moderation & Admin
 ------------------------------------------------------------- */
 function renderModerationQueue() {
+  if (!dom.moderationList) return;
   dom.moderationList.innerHTML = "";
   if (!state.moderationQueue.length) {
     const empty = document.createElement("li");
@@ -831,6 +899,8 @@ function renderModerationQueue() {
     dom.moderationList.appendChild(empty);
     return;
   }
+
+  if (!TEMPLATES.moderationItem) return;
 
   state.moderationQueue.forEach((item) => {
     const fragment = TEMPLATES.moderationItem.content.cloneNode(true);
@@ -886,32 +956,35 @@ function rejectModeration(id) {
   createAlert(`"${item.title}" was rejected.`, "warning");
 }
 
-dom.announcementForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  if (!requireActiveUser() || !isAdmin()) {
-    createAlert("Only admins can post announcements.", "danger");
-    return;
-  }
-  const formData = new FormData(event.currentTarget);
-  const announcement = {
-    id: crypto.randomUUID(),
-    title: formData.get("announcementTitle").trim(),
-    message: formData.get("announcementBody").trim(),
-    createdAt: new Date().toISOString(),
-  };
-  state.announcements.unshift(announcement);
-  recordAudit({
-    actor: state.activeUser.email,
-    action: "created announcement",
-    title: announcement.title,
+if (dom.announcementForm) {
+  dom.announcementForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!requireActiveUser() || !isAdmin()) {
+      createAlert("Only admins can post announcements.", "danger");
+      return;
+    }
+    const formData = new FormData(event.currentTarget);
+    const announcement = {
+      id: crypto.randomUUID(),
+      title: formData.get("announcementTitle").trim(),
+      message: formData.get("announcementBody").trim(),
+      createdAt: new Date().toISOString(),
+    };
+    state.announcements.unshift(announcement);
+    recordAudit({
+      actor: state.activeUser.email,
+      action: "created announcement",
+      title: announcement.title,
+    });
+    saveState();
+    renderAnnouncements();
+    event.currentTarget.reset();
+    createAlert("Announcement posted.", "success");
   });
-  saveState();
-  renderAnnouncements();
-  event.currentTarget.reset();
-  createAlert("Announcement posted.", "success");
-});
+}
 
 function renderAnnouncements() {
+  if (!dom.announcementList) return;
   dom.announcementList.innerHTML = "";
   if (!state.announcements.length) {
     const empty = document.createElement("li");
@@ -937,7 +1010,9 @@ function renderAnnouncements() {
 }
 
 function renderUserList() {
+  if (!dom.userList) return;
   dom.userList.innerHTML = "";
+  if (!TEMPLATES.userItem) return;
   state.users.forEach((user) => {
     const fragment = TEMPLATES.userItem.content.cloneNode(true);
     fragment.querySelector(".user-item__name").textContent = user.name;
@@ -975,21 +1050,21 @@ function updateUserStatus(userId, status) {
    Analytics
 ------------------------------------------------------------- */
 function updateAnalytics() {
-  if (!dom.analytics.chart) return;
-
+  const { lost, recovery, resolution, frequent } = dom.analytics;
+  if (!lost || !recovery || !resolution || !frequent) return;
   const itemsLast30 = state.items.filter(
     (item) =>
       new Date(item.date) >=
       new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
   );
-  dom.analytics.lost.textContent = itemsLast30.length.toString();
+  lost.textContent = itemsLast30.length.toString();
 
   const recovered =
     itemsLast30.filter((item) => item.status === "returned").length || 0;
   const recoveryRatio = itemsLast30.length
     ? Math.round((recovered / itemsLast30.length) * 100)
     : 0;
-  dom.analytics.recovery.textContent = `${recoveryRatio}%`;
+  recovery.textContent = `${recoveryRatio}%`;
 
   const resolutionTimes = itemsLast30
     .filter((item) => item.status === "returned")
@@ -1025,7 +1100,7 @@ function updateAnalytics() {
   const topCategory = Object.entries(categoryFrequency).sort(
     (a, b) => b[1] - a[1]
   )[0];
-  dom.analytics.frequent.textContent = topCategory
+  frequent.textContent = topCategory
     ? `${topCategory[0]}`
     : "No data";
 
@@ -1034,7 +1109,9 @@ function updateAnalytics() {
 
 function drawCategoryChart(data) {
   const canvas = dom.analytics.chart;
+  if (!canvas) return;
   const ctx = canvas.getContext("2d");
+  if (!ctx) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   const entries = Object.entries(data);
@@ -1084,33 +1161,41 @@ function downloadJson(filename, data) {
   URL.revokeObjectURL(url);
 }
 
-dom.downloadAuditLog.addEventListener("click", () => {
-  if (!isAdmin()) {
-    createAlert("Only admins can download the audit log.", "warning");
-    return;
-  }
-  downloadJson("audit-log.json", state.auditLog);
-});
+if (dom.downloadAuditLog) {
+  dom.downloadAuditLog.addEventListener("click", () => {
+    if (!isAdmin()) {
+      createAlert("Only admins can download the audit log.", "warning");
+      return;
+    }
+    downloadJson("audit-log.json", state.auditLog);
+  });
+}
 
-dom.downloadUserReport.addEventListener("click", () => {
-  if (!isAdmin()) {
-    createAlert("Only admins can download user reports.", "warning");
-    return;
-  }
-  const report = state.users.map((user) => ({
-    ...user,
-    items: state.items.filter((item) => item.ownerId === user.id),
-  }));
-  downloadJson("user-history-report.json", report);
-});
+if (dom.downloadUserReport) {
+  dom.downloadUserReport.addEventListener("click", () => {
+    if (!isAdmin()) {
+      createAlert("Only admins can download user reports.", "warning");
+      return;
+    }
+    const report = state.users.map((user) => ({
+      ...user,
+      items: state.items.filter((item) => item.ownerId === user.id),
+    }));
+    downloadJson("user-history-report.json", report);
+  });
+}
 
 /* -------------------------------------------------------------
    Initial Render
 ------------------------------------------------------------- */
 function renderActiveUser() {
   const name = state.activeUser ? state.activeUser.name : "Guest";
-  dom.activeUserName.textContent = name;
-  dom.logoutBtn.disabled = !state.activeUser;
+  if (dom.activeUserName) {
+    dom.activeUserName.textContent = name;
+  }
+  if (dom.logoutBtn) {
+    dom.logoutBtn.disabled = !state.activeUser;
+  }
 }
 
 function renderApp() {
